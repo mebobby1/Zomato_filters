@@ -2,21 +2,21 @@ import { Restaurant } from "../models/restaurant.js";
 
 
 export const getFilteredRestaurant = async (req, res) => {
-    try {
+  
+    try {     
       const { location, lcost, hcost, cuisine, mealtype, sort, page } = req.query;
-  
     const filterObj = {};
-  
-    if (location) {
-      filterObj.city_name = location;
-    }
   
     if (lcost && hcost) {
       filterObj.cost = { $gte: lcost, $lte: hcost };
     } else if (lcost) {
       filterObj.cost = { $gte: lcost };
-    } else {
+    } else if(hcost){
       filterObj.cost = { $lte: hcost };
+    }
+
+    if (location) {
+      filterObj.city_name = location;
     }
   
     if (cuisine) {
@@ -36,9 +36,12 @@ export const getFilteredRestaurant = async (req, res) => {
         sortOptions.cost = -1;
       }
     }
-  
+
+console.log(filterObj)
     const itemsPerPage = 2;
     const pageNumber = page || 1;
+
+    console.log(filterObj)
   
   const restaurantData = await Restaurant.find(filterObj)
       .sort(sortOptions)
@@ -46,13 +49,14 @@ export const getFilteredRestaurant = async (req, res) => {
       .limit(itemsPerPage);
 
       res.json(restaurantData);
-
+    
 
     } catch (error) {
       res.json({
         success: false,
-        message: "Use Filters Options",
+        message: "Data Not Found",
       })
     }
   }
 
+ 
